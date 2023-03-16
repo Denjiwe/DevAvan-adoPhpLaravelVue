@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use App\Models\Fornecedor;
 
 class FornecedorSeeder extends Seeder
@@ -23,19 +24,19 @@ class FornecedorSeeder extends Seeder
         $fornecedor->save();
 
         //o método create (lembrar de passar as colunas na variavel fillable)
-        Fornecedor::create([
-            'nome' => 'Fornecedor 200',
-            'site' => 'fornecedor200.com.br',
-            'uf' => 'CE',
-            'email' => 'fornecedor200@contato.com'
-        ]);
-
-        //insert (não funciona por algum motivo)
-        // DB::table('fornecedores')->insert([
-        //     'nome' => 'Fornecedor 300',
-        //     'site' => 'fornecedor300.com.br',
-        //     'uf' => 'SP',
-        //     'email' => 'fornecedor300@contato.com'
+        // Fornecedor::create([
+        //     'nome' => 'Fornecedor 200',
+        //     'site' => 'fornecedor200.com.br',
+        //     'uf' => 'CE',
+        //     'email' => 'fornecedor200@contato.com'
         // ]);
+
+        //insert 
+        DB::table('fornecedores')->insert([
+            'nome' => 'Fornecedor 300',
+            'site' => 'fornecedor300.com.br',
+            'uf' => 'SP',
+            'email' => 'fornecedor300@contato.com'
+        ]);
     }
 }
