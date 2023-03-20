@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\LogAcessoMiddleware;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,7 +35,7 @@ Route::get(
 })->where('nome', '[A-Za-z]+')->where('assunto', '[0-9]+');
 Route::get('/login', function(){ return 'Login';})->name('site.login');
 
-Route::prefix('/app')->group(function() {
+Route::middleware('autenticacao:padrao,visitante')->prefix('/app')->group(function() {
     Route::get('/clientes', function(){ return 'Clientes';})->name('app.clientes');
     Route::get('/fornecedores', [\App\Http\Controllers\FornecedoresController::class, 'index'])->name('app.fornecedores');
     Route::get('/produtos', function(){ return 'Produtos';})->name('app.produtos');
