@@ -15,18 +15,14 @@ class AutenticacaoMiddleware
      * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
-    public function handle(Request $request, Closure $next, $metodo_autenticacao, $perfil)
+    public function handle(Request $request, Closure $next)
     {
+        session_start();
 
-        if ($metodo_autenticacao == 'padrao') {
-            echo 'método padrão - '.$perfil;
-            echo '<br>';
-        }
-
-        if (false) {
+        if (isset($_SESSION['email']) && $_SESSION['email'] != 2) {
             return $next($request);
         } else {
-            return Response('Acesso negado!!!');
+            return redirect()->route('site.login', ['erro' => 2]);
         }
     }
 }
