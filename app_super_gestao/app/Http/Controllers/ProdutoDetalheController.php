@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 
-class ClienteController extends Controller
+use Illuminate\Http\Request;
+use App\Models\Unidade;
+use App\Models\ProdutoDetalhe;
+
+class ProdutoDetalheController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -13,7 +16,7 @@ class ClienteController extends Controller
      */
     public function index()
     {
-        return view('app.cliente');
+        //
     }
 
     /**
@@ -23,7 +26,8 @@ class ClienteController extends Controller
      */
     public function create()
     {
-        //
+        $unidades = Unidade::all();
+        return view('app.produto_detalhe.create', ['unidades' => $unidades]);
     }
 
     /**
@@ -34,7 +38,9 @@ class ClienteController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        ProdutoDetalhe::create($request->all());
+
+        return 'Cadastro realizado com sucesso';
     }
 
     /**
@@ -51,24 +57,27 @@ class ClienteController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  App\Models\ProdutoDetalhe  $produtoDetalhe
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
-        //
+        $produto_detalhe = ProdutoDetalhe::with(['produto'])->find($id);
+        $unidades = Unidade::all();
+        return view('app.produto_detalhe.edit', ['produto_detalhe' => $produto_detalhe, 'unidades' => $unidades]);
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  App\Models\ProdutoDetalhe  $produtoDetalhe
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, ProdutoDetalhe $produto_detalhe)
     {
-        //
+        $produto_detalhe->update($request->all());
+        return 'Atualização realizada com sucesso';
     }
 
     /**
