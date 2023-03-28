@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\ResetsPasswords;
+use Illuminate\Validation\Rules;
+
 
 class ResetPasswordController extends Controller
 {
@@ -27,4 +29,13 @@ class ResetPasswordController extends Controller
      * @var string
      */
     protected $redirectTo = RouteServiceProvider::HOME;
+
+    protected function rules() // mesma função presente na trait ResetsPasswords, estando aqui possui prioridade, então caso alguma alteração fosse feita, seria a ser realizada.
+    {
+        return [
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ];
+    }
 }
