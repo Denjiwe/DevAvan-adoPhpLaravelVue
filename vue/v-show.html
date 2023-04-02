@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <title>V-show</title>
+</head>
+<body>
+    <div class="app">
+        <h1 @mouseover="exibir = true" @mouseout="exibir = false" style="width: fit-content;">Exibir saldo</h1>
+        <p>Saldo: <span v-show="exibir">R$ {{ saldo }}</span></p>
+    </div>  
+
+    <script>
+        const { createApp } = Vue;
+
+        const app = createApp({
+            data() {
+                return {
+                    exibir: false,
+                    saldo: 4324.21
+                }
+            },
+            methods: {
+            }
+        });
+
+        app.mount('.app');
+    </script>
+</body>
+</html>

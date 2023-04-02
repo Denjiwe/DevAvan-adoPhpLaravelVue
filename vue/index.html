@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <title>Document</title>
+
+    <style>
+        .vermelho {
+            color: red;
+        }
+
+        .negrito {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        {{ helloWorld }}
+        <br>
+        {{ mensagem }}
+        <br>
+        {{ adicionar() }}
+        <br>
+        {{ subtrair() }}
+        <br>
+        {{ multiplicar() }}
+        <br>
+        {{ dividir() }}
+    </div>
+
+    <div class="teste">
+        {{ mensagem }}
+        <br>
+        Nomes: {{ perfil.nomes[0] }}, {{ perfil.nomes[1] }}
+        <br>
+        <p :class="checked ? 'negrito' : cor">Idades: {{ perfil.idades[0] }}, {{ perfil.idades[1] }} </p>
+        <input type="text" :placeholder="placeholder">
+        <br>
+        <input type="number" :value="value + 5">
+        <input type="checkbox" :checked="checked">
+        <br>
+        <br>
+        <input type="text" @keyup="imprimirKey('pimba', 34, $event)">
+        <button v-on:click="alerta('apertou')">Aperte-me!</button>
+    </div>
+
+        
+    <script>
+
+        const { createApp } = Vue;
+
+        const app = createApp({
+        data() {
+            return {
+            mensagem: 'Eae mano!',
+            helloWorld: 'Hello World of Vue!',
+            n1: 20,
+            n2: 4
+            }
+        },
+        methods: {
+                adicionar: function adicionar() {
+                    return this.n1 + this.n2;
+                },
+                subtrair: function () {
+                    return this.n1 - this.n2;
+                },
+                multiplicar: () =>  this.n1 * this.n2,
+                dividir() {
+                    return this.n1 / this.n2;
+                }
+            }
+        });
+
+        app.mount('#app');
+
+        const teste = createApp({
+            data() {
+                return {
+                    mensagem: 'Passou',
+                    perfil: 
+                    {
+                        nomes: [
+                            'santhiago',
+                            'ana beatriz'
+                        ], 
+                        idades: [
+                            20,
+                            18
+                        ]
+                    },
+                    placeholder: 'Digite seu nome',
+                    checked: true,
+                    value: 30,
+                    cor: 'vermelho'
+                }
+            },
+            methods: {
+                imprimirKey(t, n, e) {
+                    console.log(t);
+                    console.log(n);
+                    console.log(this.perfil.nomes[0]);
+                    console.log(e.key);
+                },
+                alerta(t) {
+                    alert(t);
+                }
+            }
+        });
+
+        teste.mount('.teste')
+    </script>
+</body>
+</html>

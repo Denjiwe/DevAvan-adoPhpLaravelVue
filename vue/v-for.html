@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <title>V-for</title>
+</head>
+<body>
+    <div class="app">
+        <ul>
+            <li v-for="c in comentarios">{{c.id}} - {{c.comentario}}</li>
+        </ul>
+        <button @click="adicionarElemento()">Adicionar Elemento</button>
+        <button @click="removerElemento()">Remover Elemento</button>
+        <button @click="atualizarElemento()">Atualizar Elemento</button>
+
+        <hr>
+
+        <ul>
+            <li v-for="n in numero">{{n}}</li>
+        </ul>
+
+        <hr>
+
+        <ul>
+            <li v-for="curso, chave in cursos">{{ chave }} - {{ curso }}</li>
+        </ul>
+
+        <hr>
+
+        <table border="1">
+            <thead>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Descrição</th>
+            </thead>
+            <tbody>
+                <tr v-for="({titulo, descricao}, chave) in cursos2">
+                    <td>{{chave}}</td>
+                    <td>{{titulo}}</td>
+                    <td>{{descricao}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <hr>
+
+        <ul>
+            <li v-for="p in publicacoes" style="border: 1px solid black;" :key="p.id">
+                <div>
+                    {{ p.publicacao }}
+                    <hr>
+                    <input type="text">
+                </div>
+            </li>
+        </ul>
+        <button @click="misturarArray()">Misturar publicações</button>
+    </div>  
+
+    <script>
+        const { createApp } = Vue;
+
+        const app = createApp({
+            data() {
+                return {
+                    numero: 10,
+                    cursos: [
+                        'Laravel',
+                        'Vue.JS',
+                        'JavaScript',
+                        'PHP'
+                    ],
+                    cursos2: {
+                        1: {
+                            titulo: 'Laravel',
+                            descricao: 'Framework php mais utilizado do mundo'
+                        },
+                        2: {
+                            titulo: 'Vue.JS',
+                            descricao: 'Framework front-end recente e excelente'
+                        }
+                    },
+                    publicacoes: [
+                        { id: 1, publicacao: 'Publicação 1'},
+                        { id: 2, publicacao: 'Publicação 2'},
+                        { id: 3, publicacao: 'Publicação 3'},
+                    ],
+                    comentarios: [
+                        { id: 1, comentario: 'Comentário 1'},
+                        { id: 2, comentario: 'Comentário 2'},
+                        { id: 3, comentario: 'Comentário 3'}
+                    ]
+                }
+            },
+            methods: {
+                misturarArray() {
+                    let misturado = [];
+
+                    misturado[0] = this.publicacoes[2];
+                    misturado[1] = this.publicacoes[0];
+                    misturado[2] = this.publicacoes[1];
+
+                    this.publicacoes = misturado;
+                },
+                adicionarElemento() {
+                    //this.comentarios[3] = { id:4, comentario: 'Novo comentário'}
+
+                    this.comentarios.push({ id: 4, comentario: 'Novo comentário'})
+                },
+                removerElemento() {
+                    this.comentarios.pop();
+                },
+                atualizarElemento() {
+                    this.comentarios[1] = { id: 2, comentario: 'Comentário 2 atualizado'}
+
+                    // necessário somente no vuw 2
+                    // this.$set( 
+                    //     this.comentarios,
+                    //     1,
+                    //     { id: 2, comentario: 'Comentário 2 atualizado'}
+                    // )
+                }
+            }
+        });
+
+        app.mount('.app');
+    </script>
+</body>
+</html>

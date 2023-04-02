@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <title>Divs</title>
+</head>
+<body>
+    <style>
+        .borda {
+            border: 1px solid black;
+            border-radius: 5px;
+        }
+
+        .div-principal {
+            height: 200px;
+            width: 200px;
+        }
+
+        .div-menor {
+            height: 50px;
+            width: 50px;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .azul {
+            background-color: blue;
+        }
+
+        .verde {
+            background-color: greenyellow;
+        }
+
+        .branco {
+            background-color: white;
+        }
+
+        .vermelho {
+            background-color: red;
+        }
+    </style>
+    
+    <div class="app">
+        <div>
+            <input type="text" id="paragrafo">
+            <button @click="consolar()">Consolar</button>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        const app = createApp({
+            data() {
+                return {
+                }
+            },
+            methods: {
+                consolar() {
+                    console.log(paragrafo.value)
+                }
+            }
+        });
+
+        app.mount('.app');
+    </script>
+</body>
+</html>

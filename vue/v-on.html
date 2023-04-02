@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <title>V-on</title>
+    <style>
+        .borda {
+            border: 1px solid black;
+            border-radius: 5px;
+        }
+
+        .div-principal {
+            height: 200px;
+            width: 200px;
+        }
+
+        .div-menor {
+            height: 50px;
+            width: 50px;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .azul {
+            background-color: blue;
+        }
+
+        .verde {
+            background-color: greenyellow;
+        }
+
+        .branco {
+            background-color: white;
+        }
+
+        .vermelho {
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <a href="https://youtube.com" target="_blank" @click.prevent="previnirComportamentoPadrao()">Link</a>
+        <p>Mensagem: {{msg}}</p>
+        <hr>
+        <button @click.once="contarUmaVez()">Executar uma vez</button>
+        <p>Cliques: {{ cliques }}</p>
+        <hr>
+        <form @submit.prevent.once="previnirUmaVez()">
+            <button type="submit">Enviar</button>
+        </form>
+        <p>Mensagem: {{ formulario }}</p>
+        <hr>
+        <input type="text" @keyup="teclasApertadas($event)" @keyup.Enter="mostrarTeclas()">
+        <p>Teclas: {{ mostrar }}</p>
+    </div>  
+
+    <script>
+        const { createApp } = Vue;
+
+        const app = createApp({
+            data() {
+                return {
+                    msg: '',
+                    cliques: 0,
+                    formulario: '',
+                    teclas: '',
+                    mostrar: ''
+                }
+            },
+            methods: {
+                previnirComportamentoPadrao() {
+                    this.msg = 'Comportamento padrão previnido'
+                },
+                contarUmaVez() {
+                    this.cliques++
+                },
+                previnirUmaVez() {
+                    this.formulario = 'Ação prevenida uma vez'
+                },
+                teclasApertadas(e) {
+                    this.teclas += e.key
+                },
+                mostrarTeclas() {
+                    this.mostrar = this.teclas
+                    this.teclas = ''
+                }
+            }
+        });
+
+        app.mount('.app');
+    </script>
+</body>
+</html>

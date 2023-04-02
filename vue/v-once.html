@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <title>V-html e V-text</title>
+</head>
+<body>
+    <div class="app">
+        <p v-once>Saldo inicial: {{saldo}}</p>
+        <br>
+        <p>Saldo atual: {{saldo}}</p>
+        <br>
+        <input type="number" id="inputSaldo">
+        <button @click="creditar()">Creditar</button>
+        <button @click="debitar()">Debitar</button>
+    </div>  
+
+    <script>
+        const { createApp } = Vue;
+
+        const app = createApp({
+            data() {
+                return {
+                    saldo: 1100
+                }
+            },
+            methods: {
+                creditar() {
+                    this.saldo += parseFloat(inputSaldo.value);
+                    inputSaldo.value = '';
+                },
+                debitar() {
+                    this.saldo -= parseFloat(inputSaldo.value);
+                    inputSaldo.value = '';
+                }
+            }
+        });
+
+        app.mount('.app');
+    </script>
+</body>
+</html>
