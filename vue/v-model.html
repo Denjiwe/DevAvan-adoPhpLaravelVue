@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <title>V-model</title>
+</head>
+<body>
+    <div class="app">
+        {{ paciente }} <br>
+        <!-- <input type="text" :value="paciente" @keyup="paciente = $event.target.value"> -->
+        <input type="text" v-model="paciente">
+        <hr>
+        <input type="radio"  value="F" v-model="sexo">Feminino
+        <input type="radio"  value="M" v-model="sexo">Masculino
+        <p>{{sexo}}</p>
+        <hr>
+        <select v-model="plano">
+            <option value="" disabled hidden>Selecione o plano</option>
+            <option value="1">Básico 1</option>
+            <option value="2">Básico 2</option>
+            <option value="3">Master</option>
+        </select>
+        <p>{{plano}}</p>
+        <hr>
+        <input type="checkbox" value="100" v-model="doencas"> Diabetes
+        <input type="checkbox" value="101" v-model="doencas"> Asma
+        <input type="checkbox" value="102" v-model="doencas"> Cancer
+        <br>{{ doencas }}
+        <hr>
+        <textarea v-model="diagnostico"></textarea>
+    </div>  
+
+    <script>
+        const { createApp } = Vue;
+
+        const app = createApp({
+            data() {
+                return {    
+                    paciente: 'Eu mesmo',
+                    sexo: '',
+                    plano: '',
+                    doencas: [],
+                    diagnostico: ''
+                }
+            },
+            methods: {
+            }
+        });
+
+        app.mount('.app');
+    </script>
+</body>
+</html>

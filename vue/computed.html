@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <title>Computed</title>
+</head>
+<body>
+    <div class="app">
+        <h4>Adicionar Pacientes</h4>
+        <span>Nome: </span><input type="text" id="inputNome"><br>
+        <span>Idade: </span><input type="number" id="inputIdade"><br>
+        <span>Plano: </span><input type="text" id="inputPlano"><br>
+        <button @click="adicionarPaciente()">Adicionar</button>
+        <hr>
+        <div v-if="pacientes.length > 0">
+            <h4>Último paciente adicionado</h4>
+            <p>
+                {{ ultimoPaciente }},
+            </p>
+
+            <hr>
+
+            <h4>Pacientes cadastrados</h4>
+            <p v-for="p in pacientes">
+                {{ p.nome }}
+            </p>
+
+            <hr>
+
+            <h4>Pacientes com plano Ouro</h4>
+            <p v-for="p in pacientesDeOuro">
+                {{ p.nome }}
+            </p>
+        </div>
+    </div>  
+
+    <script>
+        const { createApp } = Vue;
+
+        const app = createApp({
+            data() {
+                return {    
+                    pacientes: []
+                }
+            },
+            methods: {
+                adicionarPaciente() {
+                    this.pacientes.push({
+                        nome: inputNome.value,
+                        idade: inputIdade.value,
+                        plano: inputPlano.value
+                    })
+                }
+            },
+            computed: {
+                ultimoPaciente() {
+                    let key = this.pacientes.length - 1;
+                    let txt = '';
+
+                    txt += 'Paciente ' + this.pacientes[key].nome
+                    txt += ', idade ' + this.pacientes[key].idade
+                    txt += ', plano de saúde ' + this.pacientes[key].plano
+
+                    return txt.toUpperCase();
+                },
+                pacientesDeOuro() {
+                    return this.pacientes.filter(item => item.plano == 'Ouro')
+                }
+            }
+        });
+
+        app.mount('.app');
+    </script>
+</body>
+</html>

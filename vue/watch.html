@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <title>Watch</title>
+</head>
+<body>
+    <div class="app">
+        <span>Paciente: </span><input type="text" v-model="paciente">
+        <br>
+        <ul>
+            <li v-for="p in lista">{{ p.nome }}, {{ p.idade }}, parte: {{ p.parte }}</li>
+        </ul>
+    </div>  
+
+    <script>
+        const { createApp } = Vue;
+
+        const app = createApp({
+            data() {
+                return {    
+                    paciente: '',
+                    pacientes: [
+                        { nome: 'Jonathan Joestar', idade: 17, parte: 1},
+                        { nome: 'Joseph Joestar', idade: 57, parte: 2},
+                        { nome: 'Jotaro Kujo', idade: 17, parte: 3},
+                        { nome: 'Josuke Higashikata', idade: 16, parte: 4},
+                        { nome: 'Giorno Giovanna', idade: 16, parte: 5},
+                        { nome: 'Jolyne Kujo', idade: 22, parte: 6},
+                        { nome: 'Jonny Joestar', idade: 18, parte: 7},
+                        { nome: 'Josefumi Yoshikage', idade: 20, parte: 8},
+                        { nome: 'Jodio Joestar', idade: 15, parte: 9},
+                    ],
+                    lista: []
+                }
+            },
+            methods: {
+            },
+            watch: {
+                paciente(valorNovo) {
+                    console.log(valorNovo)
+                    this.lista = this.pacientes.filter(p => p.nome.match(valorNovo));
+                }
+            }
+        });
+
+        app.mount('.app');
+    </script>
+</body>
+</html>
