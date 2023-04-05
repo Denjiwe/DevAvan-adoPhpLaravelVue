@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Marca;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class MarcaController extends Controller
 {
@@ -35,9 +36,19 @@ class MarcaController extends Controller
     {
         //$marca = Marca::create($request->all());
 
+        // dd($request->imagem);
+        // dd($request->file('imagem'));
+        // algumas maneiras de recuperar os arquivos de imagem
+
         $request->validate($this->marca->rules(), $this->marca->feedback());
 
-        $marca = $this->marca->create($request->all());
+        $imagem = $request->file('imagem');
+        $imagem_urn = $imagem->store('imagens', 'public');
+
+        $marca = $this->marca->create([
+            'nome' => $request->nome,
+            'imagem' => $imagem_urn
+        ]);
         return response()->json($marca, 201);
     }
 
@@ -75,9 +86,45 @@ class MarcaController extends Controller
             return response()->json(['erro'=>'Não foi possível fazer a atualização pois o registro não foi encontrado'], 404);
         }
 
-        $request->validate($marca->rules(), $marca->feedback());
+        if($request->method() == 'PATCH') {
+            $regrasDinamicas = array();
 
-        $marca->update($request->all());
+            // percorrendo todas as regras definidas na model
+            foreach ($marca->rules() as $input => $regras) {
+
+                // coletando apenas as regras encontradas na requisição
+                if(array_key_exists($input, $request->all())) {
+                    $regrasDinamicas[$input] = $regras;
+                }
+
+            }
+
+            $request->validate($regrasDinamicas, $marca->feedback());
+        } else {
+
+            $request->validate($marca->rules(), $marca->feedback());
+        }
+
+        // dd($request->file('imagem'));
+
+        // verifica se a imagem está na requisição, pois como há o patch, não é obrigatório passar outra imagem.
+        if ($request->file('imagem')) {
+
+            Storage::disk('public')->delete($marca->imagem);
+
+            $imagem = $request->file('imagem');
+            $imagem_urn = $imagem->store('imagens', 'public');
+
+            $marca->update([
+                'nome' => $request->nome,
+                'imagem' => $imagem_urn
+            ]);
+        } else {
+
+            $marca->update($request->all());
+        }
+
+        
         return response()->json($marca, 200);
     }
 
@@ -97,6 +144,8 @@ class MarcaController extends Controller
         if($marca === null) {
             return response()->json(['erro'=>'Não foi possível fazer a exclusão pois o registro não foi encontrado'], 404);
         }
+
+        Storage::disk('public')->delete($marca->imagem);
 
         $marca->delete();
         return response()->json(['msg' => 'Registro excluído!'], 200);
