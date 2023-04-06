@@ -20,9 +20,36 @@ class ModeloController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json($this->modelo->all(), 200);
+        $modelos = array();
+
+        if($request->has('atributosMarca')) {
+            $atributosMarca = $request->atributosMarca;
+            $modelos = $this->modelo->with('marca:id,'.$atributosMarca);
+        } else {
+            $modelos = $this->modelo->with('marca');
+        }
+
+        if($request->has('filtro')) {
+
+            $filtros = explode(';', $request->filtro);
+            foreach($filtros as $key => $condicao) {
+
+                $c = explode(':', $condicao);
+                $modelos = $modelos->where($c[0], $c[1], $c[2]);
+                // c[0] = coluna, c[1] = operador lógico, c[2] = valor
+            }
+        }
+
+        if($request->has('atributos')) {
+            $atributos = $request->atributos;
+            $modelos = $modelos->selectRaw($atributos)->get();
+        } else {
+            $modelos = $modelos->get();
+        }
+
+        return response()->json($modelos, 200);
     }
 
     /**
@@ -58,7 +85,7 @@ class ModeloController extends Controller
      */
     public function show($id)
     {
-        $modelo = $this->modelo->find($id);
+        $modelo = $this->modelo->with('marca')->find($id);
 
         if($modelo === null) {
             return response()->json(['erro'=>'Não foi possível exibir o registro pois o mesmo não foi encontrado'], 404);
@@ -76,7 +103,7 @@ class ModeloController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $modelo = $this->modelo->find($id);
+        $modelo = $this->modelo->with('marca')->find($id);
 
         if($modelo === null) {
             return response()->json(['erro'=>'Não foi possível fazer a atualização pois o registro não foi encontrado'], 404);
@@ -103,24 +130,28 @@ class ModeloController extends Controller
 
         // verifica se a imagem está na requisição, pois como há o patch, não é obrigatório passar outra imagem.
         if ($request->file('imagem')) {
-
             Storage::disk('public')->delete($modelo->imagem);
 
             $imagem = $request->file('imagem');
             $imagem_urn = $imagem->store('imagens/modelos', 'public');
 
-            $modelo->update([
-                'marca_id' => $request->marca_id,
-                'nome' => $request->nome,
-                'imagem' => $imagem_urn,
-                'numero_portas' => $request->numero_portas,
-                'lugares' => $request->lugares,
-                'air_bag' => $request->air_bag,
-                'abs' => $request->abs,
-            ]);
-        } else {
-            $modelo->update($request->all());
-        }
+        } 
+
+            $modelo->fill($request->all());
+            $request->file('imagem') ? $modelo->imagem = $imagem_urn : '';
+            $modelo->save();
+
+        /*
+        $modelo->update([
+            'marca_id' => $request->marca_id,
+            'nome' => $request->nome,
+            'imagem' => $imagem_urn,
+            'numero_portas' => $request->numero_portas,
+            'lugares' => $request->lugares,
+            'air_bag' => $request->air_bag,
+            'abs' => $request->abs,
+        ]);
+        */
 
         
         return response()->json($modelo, 200);
