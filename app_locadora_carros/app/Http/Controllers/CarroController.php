@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Carrp;
-use App\Http\Requests\StoreCarrpRequest;
-use App\Http\Requests\UpdateCarrpRequest;
+use App\Models\Carro;
+use Illuminate\Http\Request;
+use App\Repositories\CarroRepository;
 
 class CarroController extends Controller
 {
+    public function __construct(Carro $carro)
+    {
+        $this->carro = $carro;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -15,17 +19,34 @@ class CarroController extends Controller
      */
     public function index()
     {
-        //
-    }
+        $carroRepository = new CarroRepository($this->carro);
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        if($request->has('atributos_locacoes')) {
+            $atributos_locacoes = 'locacoes:id,'.$request->atributos_locacoes;
+
+            $carroRepository->selectAtributosRegistrosRelacionados($atributos_locacoes);
+        } else {
+            $carroRepository->selectAtributosRegistrosRelacionados('locacoes');
+        }
+
+        if($request->has('atributos_modelo')) {
+            $atributos_modelo = 'modelo:id,'.$request->atributos_modelo;
+
+            $carroRepository->selectAtributosRegistrosRelacionados($atributos_modelo);
+        } else {
+            $carroRepository->selectAtributosRegistrosRelacionados('modelo');
+        }
+
+
+        if($request->has('filtro')) {
+            $carroRepository->filtro($request->filtro);
+        }
+
+        if($request->has('atributos')) {
+            $carroRepository->selectAtributos($request->atributos);
+        }
+        
+        return response()->json($carroRepository->getResultado(), 200);
     }
 
     /**
@@ -34,9 +55,12 @@ class CarroController extends Controller
      * @param  \App\Http\Requests\StoreCarrpRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreCarrpRequest $request)
+    public function store(Request $request)
     {
-        //
+        $request->validate($this->carro->rules());
+
+        $carro = $this->carro->create($request->all());
+        return response()->json($carro, 201);
     }
 
     /**
@@ -45,20 +69,15 @@ class CarroController extends Controller
      * @param  \App\Models\Carrp  $carrp
      * @return \Illuminate\Http\Response
      */
-    public function show(Carrp $carrp)
+    public function show($id)
     {
-        //
-    }
+        $carro = $this->carro->with('locacoes')->with('modelo')->find($id);
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Carrp  $carrp
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Carrp $carrp)
-    {
-        //
+        if($carro === null) {
+            return response()->json(['erro'=>'Não foi possível exibir o registro pois o mesmo não foi encontrado'], 404);
+        }
+
+        return response()->json($carro, 200);
     }
 
     /**
@@ -68,9 +87,38 @@ class CarroController extends Controller
      * @param  \App\Models\Carrp  $carrp
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateCarrpRequest $request, Carrp $carrp)
+    public function update(Request $request, $id)
     {
-        //
+        $carro = $this->carro->with('locacoes')->with('modelo')->find($id);
+
+        if($carro === null) {
+            return response()->json(['erro'=>'Não foi possível fazer a atualização pois o registro não foi encontrado'], 404);
+        }
+
+        if($request->method() == 'PATCH') {
+            $regrasDinamicas = array();
+
+            // percorrendo todas as regras definidas na model
+            foreach ($carro->rules() as $input => $regras) {
+
+                // coletando apenas as regras encontradas na requisição
+                if(array_key_exists($input, $request->all())) {
+                    $regrasDinamicas[$input] = $regras;
+                }
+
+            }
+
+            $request->validate($regrasDinamicas);
+        } else {
+
+            $request->validate($carro->rules());
+        }
+
+        $carro->update([
+            'nome' => $request->nome,
+        ]);
+        
+        return response()->json($carro, 200);
     }
 
     /**
@@ -79,8 +127,15 @@ class CarroController extends Controller
      * @param  \App\Models\Carrp  $carrp
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Carrp $carrp)
+    public function destroy($id)
     {
-        //
+        $carro = $this->carro->find($id);
+
+        if($carro === null) {
+            return response()->json(['erro'=>'Não foi possível fazer a exclusão pois o registro não foi encontrado'], 404);
+        }
+
+        $carro->delete();
+        return response()->json(['msg' => 'Registro excluído!'], 200);
     }
 }

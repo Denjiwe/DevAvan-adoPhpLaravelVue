@@ -4,9 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Locacao;
 use Illuminate\Http\Request;
+use App\Repositories\LocacaoRepository;
 
 class LocacaoController extends Controller
 {
+    public function __construct(Carro $locacao)
+    {
+        $this->locacao = $locacao;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -14,17 +19,34 @@ class LocacaoController extends Controller
      */
     public function index()
     {
-        //
-    }
+        $locacaoRepository = new LocacaoRepository($this->locacao);
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        if($request->has('atributos_carro')) {
+            $atributos_carro = 'carro:id,'.$request->atributos_carro;
+
+            $locacaoRepository->selectAtributosRegistrosRelacionados($atributos_carro);
+        } else {
+            $locacaoRepository->selectAtributosRegistrosRelacionados('carro');
+        }
+
+        if($request->has('atributos_cliente')) {
+            $atributos_cliente = 'cliente:id,'.$request->atributos_cliente;
+
+            $locacaoRepository->selectAtributosRegistrosRelacionados($atributos_cliente);
+        } else {
+            $locacaoRepository->selectAtributosRegistrosRelacionados('cliente');
+        }
+
+
+        if($request->has('filtro')) {
+            $locacaoRepository->filtro($request->filtro);
+        }
+
+        if($request->has('atributos')) {
+            $locacaoRepository->selectAtributos($request->atributos);
+        }
+        
+        return response()->json($locacaoRepository->getResultado(), 200);
     }
 
     /**
@@ -35,7 +57,10 @@ class LocacaoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate($this->locacao->rules());
+
+        $locacao = $this->locacao->create($request->all());
+        return response()->json($locacao, 201);
     }
 
     /**
@@ -44,20 +69,15 @@ class LocacaoController extends Controller
      * @param  \App\Models\Locacao  $locacao
      * @return \Illuminate\Http\Response
      */
-    public function show(Locacao $locacao)
+    public function show($id)
     {
-        //
-    }
+        $locacao = $this->locacao->with('carro')->with('cliente')->find($id);
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Locacao  $locacao
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Locacao $locacao)
-    {
-        //
+        if($locacao === null) {
+            return response()->json(['erro'=>'Não foi possível exibir o registro pois o mesmo não foi encontrado'], 404);
+        }
+
+        return response()->json($locacao, 200);
     }
 
     /**
@@ -67,9 +87,38 @@ class LocacaoController extends Controller
      * @param  \App\Models\Locacao  $locacao
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Locacao $locacao)
+    public function update(Request $request, $id)
     {
-        //
+        $locacao = $this->locacao->with('carro')->with('cliente')->find($id);
+
+        if($locacao === null) {
+            return response()->json(['erro'=>'Não foi possível fazer a atualização pois o registro não foi encontrado'], 404);
+        }
+
+        if($request->method() == 'PATCH') {
+            $regrasDinamicas = array();
+
+            // percorrendo todas as regras definidas na model
+            foreach ($locacao->rules() as $input => $regras) {
+
+                // coletando apenas as regras encontradas na requisição
+                if(array_key_exists($input, $request->all())) {
+                    $regrasDinamicas[$input] = $regras;
+                }
+
+            }
+
+            $request->validate($regrasDinamicas);
+        } else {
+
+            $request->validate($locacao->rules());
+        }
+
+        $locacao->update([
+            'nome' => $request->nome,
+        ]);
+        
+        return response()->json($locacao, 200);
     }
 
     /**
@@ -78,8 +127,15 @@ class LocacaoController extends Controller
      * @param  \App\Models\Locacao  $locacao
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Locacao $locacao)
+    public function destroy($id)
     {
-        //
+        $locacao = $this->locacao->find($id);
+
+        if($locacao === null) {
+            return response()->json(['erro'=>'Não foi possível fazer a exclusão pois o registro não foi encontrado'], 404);
+        }
+
+        $locacao->delete();
+        return response()->json(['msg' => 'Registro excluído!'], 200);
     }
 }
