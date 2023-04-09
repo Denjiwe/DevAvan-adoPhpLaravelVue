@@ -8,7 +8,7 @@ use App\Repositories\LocacaoRepository;
 
 class LocacaoController extends Controller
 {
-    public function __construct(Carro $locacao)
+    public function __construct(Locacao $locacao)
     {
         $this->locacao = $locacao;
     }
@@ -17,7 +17,7 @@ class LocacaoController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $locacaoRepository = new LocacaoRepository($this->locacao);
 
