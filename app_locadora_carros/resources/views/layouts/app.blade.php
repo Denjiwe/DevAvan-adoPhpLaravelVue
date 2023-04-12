@@ -44,7 +44,7 @@
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item" href="#">Carros</a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="{{ route('app.marcas') }}">Marcas</a>
+                                    <a class="dropdown-item" href="{{ route('marcas') }}">Marcas</a>
                                     <a class="dropdown-item" href="#">Modelos</a>
                                 </div>
                             </li>
@@ -74,8 +74,8 @@
 
                                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                     <a class="dropdown-item" href="{{ route('logout') }}"
-                                       onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
+                                        onclick="event.preventDefault();
+                                        document.getElementById('logout-form').submit();">
                                         {{ __('Logout') }}
                                     </a>
 
@@ -89,6 +89,15 @@
                 </div>
             </div>
         </nav>
+
+        @auth
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{route('marcas')}}">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ Route::currentRouteName() }}</li>
+                </ol>
+            </nav>
+        @endauth
 
         <main class="py-4">
             @yield('content')
