@@ -40,6 +40,12 @@
         </div>
 
         <modal-component id="adicionarModal" titulo="Adicionar marca">
+
+            <template v-slot:alertas>
+                <alert-component tipo="success"></alert-component>
+                <alert-component tipo="danger"></alert-component>
+            </template>
+
             <template v-slot:conteudo>
                 <div class="mb-4">
                     <input-container-component titulo="Nome" id="inputNome" id-help="nomeHelp" text-ajuda="Digite o nome da marca">
@@ -64,6 +70,19 @@
 import axios from 'axios';
 
     export default {
+        computed: {
+            token() {
+
+                let token = document.cookie.split(';').find(indice => {
+                    return indice.includes('token=')
+                })
+
+                token = token.split('=')[1]
+                token = 'Bearer ' + token
+
+                return token
+            }
+        },
         data() {
             return {
                 urlBase: 'http://localhost:8000/api/v1/marca',
@@ -85,7 +104,8 @@ import axios from 'axios';
                 let config = {
                     headers: {
                         'Content-Type': 'multipart/form-data',
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'Authorization': this.token
                     }
                 }
 
