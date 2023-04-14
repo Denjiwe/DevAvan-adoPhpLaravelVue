@@ -22,7 +22,8 @@ class Marca extends Model
             'required' => 'O campo :attribute é obrigatório',
             'nome.unique' => 'O nome infomado já foi inserido',
             'nome.min' => 'O nome deve possuir no mínimo 3 caracteres',
-            'imagem.mime' => 'O arquivo deve ser do tipo PNG, JPEG ou JPG'
+            'imagem.file' => 'A imagem deve ser um arquivo',
+            'imagem.mimes' => 'O arquivo deve ser do tipo PNG, JPEG ou JPG'
         ];
     } 
 

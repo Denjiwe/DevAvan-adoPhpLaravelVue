@@ -42,8 +42,8 @@
         <modal-component id="adicionarModal" titulo="Adicionar marca">
 
             <template v-slot:alertas>
-                <alert-component tipo="success"></alert-component>
-                <alert-component tipo="danger"></alert-component>
+                <alert-component tipo="success" :detalhes="transacaoDetalhes" titulo="Marca cadastrada com sucesso" v-if="transacaoStatus == 'adicionado'"></alert-component>
+                <alert-component tipo="danger" :detalhes="transacaoDetalhes" titulo="Erro ao tentar cadastrar a marca" v-if="transacaoStatus == 'erro'"></alert-component>
             </template>
 
             <template v-slot:conteudo>
@@ -87,16 +87,34 @@ import axios from 'axios';
             return {
                 urlBase: 'http://localhost:8000/api/v1/marca',
                 nomeMarca: '',
-                arquivoImagem: []
+                arquivoImagem: [],
+                transacaoDetalhes: '',
+                transacaoStatus: '',
+                marcas:[]
             }
         },
         methods: {
+            carregarLista() {
+                let config = {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Authorization': this.token
+                    }
+                }
+
+                axios.get(this.urlBase, config)
+                    .then(response=> {
+                        this.marcas = response.data
+                        console.log(this.marcas)
+                    })
+                    .catch(errors => {
+                        console.log(errors)
+                    })
+            },
             carregarImagem(e) {
                 this.arquivoImagem = e.target.files
             },
             salvar() {
-                console.log(this.nomeMarca, this.arquivoImagem)
-
                 let formData = new FormData();
                 formData.append('nome', this.nomeMarca)
                 formData.append('imagem', this.arquivoImagem[0])
@@ -111,12 +129,23 @@ import axios from 'axios';
 
                 axios.post(this.urlBase, formData, config)
                     .then(Response => {
-                        console.log(Response)
+                        this.transacaoStatus = 'adicionado'
+                        this.transacaoDetalhes = {
+                            mensagem: 'ID do registro: '+response.data.id
+                        }
                     })
                     .catch(errors=>{
-                        console.log(errors  )
+                        this.transacaoStatus = 'erro'
+                        this.transacaoDetalhes = {
+                            mensagem: errors.response.data.message,
+                            dados: errors.response.data.errors
+                        }
+                        // errors.response.data.message
                     })
             }
+        },
+        mounted() {
+            this.carregarLista();
         }
     }
 </script>
