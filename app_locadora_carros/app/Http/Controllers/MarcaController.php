@@ -38,7 +38,7 @@ class MarcaController extends Controller
             $marcaRepository->selectAtributos($request->atributos);
         }
         
-        return response()->json($marcaRepository->getResultado(), 200);
+        return response()->json($marcaRepository->getResultadoComPaginacao(3), 200);
     }
 
     /**

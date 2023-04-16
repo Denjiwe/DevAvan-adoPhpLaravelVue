@@ -2,30 +2,51 @@
     <table class="table table-hover">
         <thead>
             <tr>
-            <th scope="col">#</th>
-            <th scope="col">First</th>
-            <th scope="col">Last</th>
-            <th scope="col">Handle</th>
+                <th scope="col" v-for="t, key in titulos" :key="key">{{ t.titulo }}</th>
+                <th v-if="atualizar || visualizar.visivel || remover">Ações</th>
             </tr>
         </thead>
         <tbody>
-            <tr>
-            <th scope="row">1</th>
-            <td>Mark</td>
-            <td>Otto</td>
-            <td>@mdo</td>
+
+            <tr v-for="obj, chave in dadosFiltrados" :key="chave">
+                <td v-for="valor, chaveValor in obj" :key="chaveValor">
+                    <span v-if="titulos[chaveValor].tipo == 'texto'">{{ valor }}</span>
+                    <span v-if="titulos[chaveValor].tipo == 'imagem'">
+                        <img :src="'/storage/'+valor" width="30" height="30">
+                    </span>
+                    <span v-if="titulos[chaveValor].tipo == 'data'">{{ valor }}</span>
+                </td>
+                <td v-if="atualizar || visualizar.visivel || remover">
+                    <button class="btn btn-outline-primary btn-sm me-1" v-if="visualizar.visivel" :data-bs-toggle="visualizar.dataBsToggle" :data-bs-target="visualizar.dataBsTarget">Visualizar</button>
+                    <button class="btn btn-outline-primary btn-sm me-1" v-if="atualizar">Atualizar</button>
+                    <button class="btn btn-outline-danger btn-sm" v-if="remover">Remover</button>
+                </td>
             </tr>
-            <tr>
-            <th scope="row">2</th>
-            <td>Jacob</td>
-            <td>Thornton</td>
-            <td>@fat</td>
-            </tr>
-            <tr>
-            <th scope="row">3</th>
-            <td colspan="2">Larry the Bird</td>
-            <td>@twitter</td>
-            </tr>
+
         </tbody>
     </table>
 </template>
+
+<script>
+    export default {
+        props: ['dados', 'titulos', 'visualizar', 'atualizar', 'remover'],
+        computed: {
+            dadosFiltrados() {
+
+                let campos = Object.keys(this.titulos)
+
+                let dadosFiltrados = []
+                this.dados.map((item, chave) => {
+
+                    let itemFiltrado = {}
+                    campos.forEach(campo => {
+                        itemFiltrado[campo] = item[campo] //utilizar a sintaxe de array para atribuir valores a objetos
+                    })
+                    dadosFiltrados.push(itemFiltrado)
+                })
+
+                return dadosFiltrados  
+            }
+        }
+    }
+</script>
