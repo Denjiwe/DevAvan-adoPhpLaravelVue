@@ -3,7 +3,7 @@
         <thead>
             <tr>
                 <th scope="col" v-for="t, key in titulos" :key="key">{{ t.titulo }}</th>
-                <th v-if="atualizar || visualizar.visivel || remover">Ações</th>
+                <th v-if="atualizar || visualizar.visivel || remover.visivel">Ações</th>
             </tr>
         </thead>
         <tbody>
@@ -16,10 +16,10 @@
                     </span>
                     <span v-if="titulos[chaveValor].tipo == 'data'">{{ valor }}</span>
                 </td>
-                <td v-if="atualizar || visualizar.visivel || remover">
-                    <button class="btn btn-outline-primary btn-sm me-1" v-if="visualizar.visivel" :data-bs-toggle="visualizar.dataBsToggle" :data-bs-target="visualizar.dataBsTarget">Visualizar</button>
+                <td v-if="atualizar || visualizar.visivel || remover.visivel">
+                    <button class="btn btn-outline-primary btn-sm me-1" v-if="visualizar.visivel" :data-bs-toggle="visualizar.dataBsToggle" :data-bs-target="visualizar.dataBsTarget" @click="setStore(obj)">Visualizar</button>
                     <button class="btn btn-outline-primary btn-sm me-1" v-if="atualizar">Atualizar</button>
-                    <button class="btn btn-outline-danger btn-sm" v-if="remover">Remover</button>
+                    <button class="btn btn-outline-danger btn-sm" v-if="remover" :data-bs-toggle="remover.dataBsToggle" :data-bs-target="remover.dataBsTarget" @click="setStore(obj)">Remover</button>
                 </td>
             </tr>
 
@@ -30,6 +30,13 @@
 <script>
     export default {
         props: ['dados', 'titulos', 'visualizar', 'atualizar', 'remover'],
+        methods: {
+            setStore(obj) {
+                this.$store.state.transacao.status = ''
+                this.$store.state.transacao.mensagem = ''
+                this.$store.state.item = obj
+            }
+        },  
         computed: {
             dadosFiltrados() {
 

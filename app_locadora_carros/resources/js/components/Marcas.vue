@@ -33,7 +33,7 @@
                             :dados="marcas.data"
                             :visualizar="{ visivel: true, dataBsToggle: 'modal', dataBsTarget: '#visualizarModal'}"
                             :atualizar="true"
-                            :remover="true"
+                            :remover="{ visivel: true, dataBsToggle: 'modal', dataBsTarget: '#removerModal'}"
                             :titulos="{
                                 id: {titulo: 'ID', tipo: 'texto'},
                                 nome: {titulo: 'Nome', tipo: 'texto'},
@@ -89,13 +89,62 @@
         <!-- inicio do modal de visualização de marcas -->
         <modal-component id="visualizarModal" titulo="Visualizar marca">
             <template v-slot:alertas></template>
-            <template v-slot:conteudo>Teste</template>
+            <template v-slot:conteudo>
+                <div class="row">
+                    <div class="col-6">
+                        <input-container-component titulo="ID">
+                            <input type="text" class="form-control" :value="$store.state.item.id" disabled>
+                        </input-container-component>
+                    </div>
+
+                    <div class="col-6">
+                        <input-container-component titulo="Nome">
+                            <input type="text" class="form-control" :value="$store.state.item.nome" disabled>
+                        </input-container-component>
+                    </div>
+                </div>
+                
+                <input-container-component titulo="Imagem: ">
+                    <img :src="'storage/'+$store.state.item.imagem" class="ms-3" disabled v-if="$store.state.item.imagem">
+                </input-container-component>
+
+                <input-container-component titulo="Data de Criacão">
+                    <input type="text" class="form-control" :value="$store.state.item.created_at" disabled>
+                </input-container-component>
+            </template>
             <template v-slot:footer>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
             </template>
         </modal-component>
         <!-- fim do modal de visualização de marcas -->
 
+        <!-- inicio do modal de remover de marcas -->
+        <modal-component id="removerModal" titulo="Remover marca">
+            <template v-slot:alertas>
+                <alert-component tipo="success" titulo="Operação realizada com sucesso" :detalhes="$store.state.transacao" v-if="$store.state.transacao.status == 'sucesso'"></alert-component>
+                <alert-component tipo="danger" titulo="Erro na operação" :detalhes="$store.state.transacao" v-if="$store.state.transacao.status == 'erro'"></alert-component>
+            </template>
+            <template v-slot:conteudo v-if="$store.state.transacao.status != 'sucesso'">
+                <div class="row">
+                    <div class="col-6">
+                        <input-container-component titulo="ID">
+                            <input type="text" class="form-control" :value="$store.state.item.id" disabled>
+                        </input-container-component>
+                    </div>
+
+                    <div class="col-6">
+                        <input-container-component titulo="Nome">
+                            <input type="text" class="form-control" :value="$store.state.item.nome" disabled>
+                        </input-container-component>
+                    </div>
+                </div>
+            </template>
+            <template v-slot:footer>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-danger" @click="remover()" v-if="$store.state.transacao.status != 'sucesso'">Excluir</button>
+            </template>
+        </modal-component>
+        <!-- fim do modal de remover de marcas -->
     </div>
 </template>
 
@@ -130,6 +179,37 @@ import axios from 'axios';
             }
         },
         methods: {
+            remover(){
+                let confirmacao = confirm('Tem certeza que deseja excluir a marca?')
+
+                if (!confirmacao) {
+                    return false
+                }
+
+                let url = this.urlBase+'/'+this.$store.state.item.id
+
+                let formData = new FormData()
+                formData.append('_method', 'delete')
+
+                let config = {
+                    headers: {
+                        'Accept' : 'aplication/json',
+                        'Authorization' : this.token
+                    }
+                }
+
+                axios.post(url, formData, config)
+                    .then(response => {
+                        this.$store.state.transacao.status = 'sucesso'
+                        this.$store.state.transacao.mensagem = response.data.msg
+                        this.carregarLista()
+                    })
+                    .catch(errors => {
+                        this.$store.state.transacao.status = 'erro'
+                        this.$store.state.transacao.mensagem = errors.response.data.erro
+                        console.log('Houve um erro na tentativa de excluir o registro', errors.response.data)
+                    })
+            },
             pesquisar() {
 
                 let filtro = ''
