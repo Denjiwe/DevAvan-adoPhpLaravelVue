@@ -13,8 +13,8 @@
                                 </input-container-component>
                             </div>
                             <div class="col mb-3">
-                                <input-container-component titulo="Nome" id="inputNome" id-help="nomeHelp" text-ajuda="Opcional. Pesquise pelo nome da marca">
-                                    <input type="text" class="form-control" id="inputNome" aria-describedby="nomeHelp" v-model="busca.nome">
+                                <input-container-component titulo="Nome" id="inputPesquisaNome" id-help="nomeHelp" text-ajuda="Opcional. Pesquise pelo nome da marca">
+                                    <input type="text" class="form-control" id="inputPesquisaNome" aria-describedby="nomeHelp" v-model="busca.nome">
                                 </input-container-component>
                             </div>
                         </div>    
@@ -32,7 +32,7 @@
                         <table-component
                             :dados="marcas.data"
                             :visualizar="{ visivel: true, dataBsToggle: 'modal', dataBsTarget: '#visualizarModal'}"
-                            :atualizar="true"
+                            :atualizar="{ visivel: true, dataBsToggle: 'modal', dataBsTarget: '#atualizarModal'}"
                             :remover="{ visivel: true, dataBsToggle: 'modal', dataBsTarget: '#removerModal'}"
                             :titulos="{
                                 id: {titulo: 'ID', tipo: 'texto'},
@@ -50,7 +50,7 @@
                                 </paginate-component>
                             </div>
                             <div class="col-2">
-                                <button type="submit" class="btn btn-primary btn-sm float-end" data-bs-toggle="modal" data-bs-target="#adicionarModal">Adicionar</button>
+                                <button type="submit" class="btn btn-primary btn-sm float-end" data-bs-toggle="modal" data-bs-target="#adicionarModal" @click="limparCampos()">Adicionar</button>
                             </div>
                         </div>
                     </template>
@@ -63,14 +63,14 @@
         <modal-component id="adicionarModal" titulo="Adicionar marca">
 
             <template v-slot:alertas>
-                <alert-component tipo="success" :detalhes="transacaoDetalhes" titulo="Marca cadastrada com sucesso" v-if="transacaoStatus == 'adicionado'"></alert-component>
-                <alert-component tipo="danger" :detalhes="transacaoDetalhes" titulo="Erro ao tentar cadastrar a marca" v-if="transacaoStatus == 'erro'"></alert-component>
+                <alert-component tipo="success" :detalhes="$store.state.transacao" titulo="Marca cadastrada com sucesso" v-if="$store.state.transacao.status == 'sucesso'"></alert-component>
+                <alert-component tipo="danger" :detalhes="$store.state.transacao" titulo="Erro ao tentar cadastrar a marca" v-if="$store.state.transacao.status == 'erro'"></alert-component>
             </template>
 
             <template v-slot:conteudo>
                 <div class="mb-4">
                     <input-container-component titulo="Nome" id="inputNome" id-help="nomeHelp" text-ajuda="Digite o nome da marca">
-                        <input type="text" class="form-control" id="inputId" aria-describedby="nomeHelp" v-model="nomeMarca">
+                        <input type="text" class="form-control" id="inputNome" aria-describedby="nomeHelp" v-model="nomeMarca">
                     </input-container-component>
                 </div>
             
@@ -109,7 +109,7 @@
                 </input-container-component>
 
                 <input-container-component titulo="Data de Criacão">
-                    <input type="text" class="form-control" :value="$store.state.item.created_at" disabled>
+                    <input type="text" class="form-control" :value="$filters.formataDateTime($store.state.item.created_at)" disabled>
                 </input-container-component>
             </template>
             <template v-slot:footer>
@@ -117,6 +117,33 @@
             </template>
         </modal-component>
         <!-- fim do modal de visualização de marcas -->
+
+        <!-- inicio do modal de atualização de marcas -->
+        <modal-component id="atualizarModal" titulo="Atualizar marca">
+
+            <template v-slot:alertas>
+                <alert-component tipo="success" :detalhes="$store.state.transacao" v-if="$store.state.transacao.status == 'sucesso'" titulo="Marca atualizada com sucesso"></alert-component>
+                <alert-component tipo="danger" :detalhes="$store.state.transacao" v-if="$store.state.transacao.status == 'erro'" titulo="Erro ao tentar atualizar a marca"></alert-component>
+            </template>
+
+            <template v-slot:conteudo>
+                <div class="mb-4">
+                    <input-container-component titulo="Nome" id="inputAtualizarNome" id-help="nomeHelp" text-ajuda="Digite o nome da marca">
+                        <input type="text" class="form-control" id="inputAtualizarNome" aria-describedby="nomeHelp" v-model="$store.state.item.nome">
+                    </input-container-component>
+                </div>
+
+                <input-container-component titulo="Imagem" id="inputAtualizarImagem" id-help="imagemHelp" text-ajuda="Insira a imagem da marca"><br>
+                    <input type="file" class="form-control-file" id="inputAtualizarImagem" aria-describedby="imagemHelp" @change="carregarImagem($event)">
+                </input-container-component>
+            </template>
+
+            <template v-slot:footer>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-primary" @click="atualizar()">Atualizar marca</button>
+            </template>
+        </modal-component> 
+        <!-- fim do modal de atualização de marcas -->
 
         <!-- inicio do modal de remover de marcas -->
         <modal-component id="removerModal" titulo="Remover marca">
@@ -152,19 +179,6 @@
 import axios from 'axios';
 
     export default {
-        computed: {
-            token() {
-
-                let token = document.cookie.split(';').find(indice => {
-                    return indice.includes('token=')
-                })
-
-                token = token.split('=')[1]
-                token = 'Bearer ' + token
-
-                return token
-            }
-        },
         data() {
             return {
                 urlBase: 'http://localhost:8000/api/v1/marca',
@@ -179,6 +193,45 @@ import axios from 'axios';
             }
         },
         methods: {
+            limparCampos() {
+                this.$store.state.transacao.status = ''
+                this.$store.state.transacao.mensagem = ''
+                inputNome.value = ''
+                inputImagem.value = ''
+            },
+            atualizar() {
+                
+                let url = this.urlBase+'/'+this.$store.state.item.id
+
+                let formData = new FormData()
+                formData.append('_method', 'patch')
+                formData.append('nome', this.$store.state.item.nome)
+                if (this.arquivoImagem[0]) {
+                    formData.append('imagem', this.arquivoImagem[0])
+                }
+
+                let config = {
+                    headers: {
+                        'Content-Type' : 'multpart/form-data',
+                    }
+                }
+            
+                axios.post(url, formData, config)
+                        .then(response => {
+                            console.log('Atualizado', response)
+                            inputAtualizarImagem.value = '';
+                            this.$store.state.transacao.dados = ''
+                            this.$store.state.transacao.status = 'sucesso'
+                            this.$store.state.transacao.mensagem = response.data.nome+' atualizado(a) com sucesso!'
+                            this.carregarLista()
+                        })
+                        .catch(errors => {
+                            this.$store.state.transacao.status = 'erro'
+                            this.$store.state.transacao.mensagem = errors.response.data.message
+                            this.$store.state.transacao.dados = errors.response.data.message.errors
+                            console.log('Erro de atualização', errors.response)
+                        })
+            },
             remover(){
                 let confirmacao = confirm('Tem certeza que deseja excluir a marca?')
 
@@ -191,22 +244,17 @@ import axios from 'axios';
                 let formData = new FormData()
                 formData.append('_method', 'delete')
 
-                let config = {
-                    headers: {
-                        'Accept' : 'aplication/json',
-                        'Authorization' : this.token
-                    }
-                }
-
-                axios.post(url, formData, config)
+                axios.post(url, formData)
                     .then(response => {
+                        this.$store.state.transacao.dados = ''
                         this.$store.state.transacao.status = 'sucesso'
                         this.$store.state.transacao.mensagem = response.data.msg
                         this.carregarLista()
                     })
                     .catch(errors => {
                         this.$store.state.transacao.status = 'erro'
-                        this.$store.state.transacao.mensagem = errors.response.data.erro
+                        this.$store.state.transacao.mensagem = errors.response.data.message
+                        this.$store.state.transacao.dados = errors.response.data.message.errors
                         console.log('Houve um erro na tentativa de excluir o registro', errors.response.data)
                     })
             },
@@ -241,14 +289,7 @@ import axios from 'axios';
                 
                 let url = this.urlBase + '?' + this.urlPaginacao + this.urlPesquisa
 
-                let config = {
-                    headers: {
-                        'Accept': 'application/json',
-                        'Authorization': this.token
-                    }
-                }
-
-                axios.get(url, config)
+                axios.get(url)
                     .then(response=> {
                         this.marcas = response.data
                     })
@@ -267,28 +308,24 @@ import axios from 'axios';
                 let config = {
                     headers: {
                         'Content-Type': 'multipart/form-data',
-                        'Accept': 'application/json',
-                        'Authorization': this.token
                     }
                 }
 
                 axios.post(this.urlBase, formData, config)
-                    .then(Response => {
-                        this.transacaoStatus = 'adicionado'
-                        this.transacaoDetalhes = {
-                            mensagem: 'ID do registro: '+response.data.id
-                        }
+                    .then(response => {
+                        this.$store.state.transacao.dados = ''
+                        this.$store.state.transacao.status = 'sucesso'
+                        this.$store.state.transacao.mensagem = response.data.nome+' criado(a) com sucesso!'
+                        this.carregarLista();
                     })
                     .catch(errors=>{
-                        this.transacaoStatus = 'erro'
-                        this.transacaoDetalhes = {
-                            mensagem: errors.response.data.message,
-                            dados: errors.response.data.errors
-                        }
+                        this.$store.state.transacao.status = 'erro'
+                        this.$store.state.transacao.mensagem = errors.response.data.message
+                        this.$store.state.transacao.dados = errors.response.data.errors
                         // errors.response.data.message
                     })
                 
-                this.carregarLista();
+                
             }
         },
         mounted() {

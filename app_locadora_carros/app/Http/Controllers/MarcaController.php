@@ -120,25 +120,18 @@ class MarcaController extends Controller
             $request->validate($marca->rules(), $marca->feedback());
         }
 
-        // dd($request->file('imagem'));
+        $marca->fill($request->all());
 
-        // verifica se a imagem está na requisição, pois como há o patch, não é obrigatório passar outra imagem.
+        // verifica se a imagem está na requisição, pois como há o patch, não é obrigatório passar outra imagem
         if ($request->file('imagem')) {
             Storage::disk('public')->delete($marca->imagem);
 
             $imagem = $request->file('imagem');
             $imagem_urn = $imagem->store('imagens', 'public');
+            $marca->imagem = $imagem_urn;
         }
 
-        $marca->fill($request->all());
-        $marca->imagem = $imagem_urn;
         $marca->save();
-
-        // $marca->update([
-        //     'nome' => $request->nome,
-        //     'imagem' => $imagem_urn
-        // ]);
-        
         return response()->json($marca, 200);
     }
 

@@ -12,7 +12,7 @@ const store = createStore({
     state() {
         return {
             item: {},
-            transacao: {status: '', mensagem: ''}
+            transacao: {status: '', mensagem: '', dados: ''}
         }
     }
 })
@@ -24,6 +24,27 @@ const store = createStore({
  */
 
 const app = createApp({});
+
+app.config.globalProperties.$filters = {
+    formataDateTime(d) {
+        if (!d) return ''
+
+        d = d.split('T')
+
+        let data = d[0]
+        let hora = d[1]
+
+        //formatando data
+        data = data.split('-')
+        data = data[2] + '/' + data[1] + '/' + data[0]
+
+        //formatando tempo 
+        hora = hora.split('.')
+        hora = hora[0]
+
+        return data + ' ' + hora
+    }
+}
 
 import ExampleComponent from './components/ExampleComponent.vue';
 app.component('example-component', ExampleComponent);

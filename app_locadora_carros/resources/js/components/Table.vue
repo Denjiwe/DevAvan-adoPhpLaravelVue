@@ -3,7 +3,7 @@
         <thead>
             <tr>
                 <th scope="col" v-for="t, key in titulos" :key="key">{{ t.titulo }}</th>
-                <th v-if="atualizar || visualizar.visivel || remover.visivel">Ações</th>
+                <th v-if="atualizar.visivel || visualizar.visivel || remover.visivel">Ações</th>
             </tr>
         </thead>
         <tbody>
@@ -14,11 +14,11 @@
                     <span v-if="titulos[chaveValor].tipo == 'imagem'">
                         <img :src="'/storage/'+valor" width="30" height="30">
                     </span>
-                    <span v-if="titulos[chaveValor].tipo == 'data'">{{ valor }}</span>
+                    <span v-if="titulos[chaveValor].tipo == 'data'">{{ $filters.formataDateTime(valor) }}</span>
                 </td>
-                <td v-if="atualizar || visualizar.visivel || remover.visivel">
+                <td v-if="atualizar.visivel || visualizar.visivel || remover.visivel">
                     <button class="btn btn-outline-primary btn-sm me-1" v-if="visualizar.visivel" :data-bs-toggle="visualizar.dataBsToggle" :data-bs-target="visualizar.dataBsTarget" @click="setStore(obj)">Visualizar</button>
-                    <button class="btn btn-outline-primary btn-sm me-1" v-if="atualizar">Atualizar</button>
+                    <button class="btn btn-outline-primary btn-sm me-1" v-if="atualizar.visivel" :data-bs-toggle="atualizar.dataBsToggle" :data-bs-target="atualizar.dataBsTarget" @click="setStore(obj)">Atualizar</button>
                     <button class="btn btn-outline-danger btn-sm" v-if="remover" :data-bs-toggle="remover.dataBsToggle" :data-bs-target="remover.dataBsTarget" @click="setStore(obj)">Remover</button>
                 </td>
             </tr>
